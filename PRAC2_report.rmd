@@ -1,0 +1,97 @@
+---
+title: "PRAC2 Tipología y ciclo de vida"
+author: "Ana Hubel & Jaime Pérez"
+date: '`r format(Sys.Date(),"%e de %B, %Y")`'
+output:
+  html_document:
+    toc: yes
+    toc_float: true
+    number_sections: true
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r load_libraries, include=FALSE}
+# CARGA DE LIBRERIAS
+# Librerias a cargar durante la generación del presente informe
+PACKAGES <- c("dplyr", "ggplot2", "tidyverse")
+# Install packages
+inst <- match(PACKAGES, .packages(all=TRUE))
+need <- which(is.na(inst))
+if (length(need) > 0) install.packages(PACKAGES[need], repos = "http://cran.us.r-project.org")
+# Load packages
+lapply(PACKAGES, require, character.only=T)
+```
+
+
+
+# Detalles de la actividad
+
+En esta práctica se elabora un caso práctico orientado a aprender a identificar los datos relevantes para un proyecto analítico y usar las herramientas de integración, limpieza, validación y análisis de las mismas.
+
+Los objetivos concretos de esta práctica son: 
+
+- Aprender a aplicar los conocimientos adquiridos y su capacidad de resolución de problemas en entornos nuevos o poco conocidos dentro de contextos más amplios o multidisciplinares. 
+- Saber identificar los datos relevantes y los tratamientos necesarios (integración, limpieza y validación) para llevar a cabo un proyecto analítico. 
+- Aprender a analizar los datos adecuadamente para abordar la información contenida en los datos. 
+- Identificar la mejor representación de los resultados para aportar conclusiones sobre el problema planteado en el proceso analítico. 
+- Actuar con los principios éticos y legales relacionados con la manipulación de datos en función del ámbito de aplicación. 
+- Desarrollar las habilidades de aprendizaje que les permitan continuar estudiando de un modo que tendrá que ser en gran medida autodirigido o autónomo. 
+- Desarrollar la capacidad de búsqueda, gestión y uso de información y recursos en el ámbito de la ciencia de datos.
+
+Contribuciones durante la presente práctica:
+
+ **Contribuciones**    |  **Firma** | 
+-----------------------| ----------------------|
+*Investigación previa* | Jaime Pérez & Ana Hubel 
+*Redacción de las respuestas* | Jaime Pérez & Ana Hubel
+*Desarrollo código* | Jaime Pérez & Ana Hubel
+
+
+# Descripción del dataset y objetivos del análisis
+
+
+
+Links descarga datasets:
+
+> https://www.kaggle.com/uciml/breast-cancer-wisconsin-data?select=data.csv
+
+> https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29
+
+
+
+
+
+
+
+# Integración y selección de los datos de interés
+
+
+
+
+# Limpieza de datos
+
+
+
+
+
+# Análisis de los datos
+
+
+
+
+
+
+# Representación de los resultados
+
+
+
+
+
+# Conclusiones
+
+
+
+
+
