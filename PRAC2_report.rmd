@@ -52,12 +52,27 @@ Contribuciones durante la presente práctica:
 # Descripción del dataset y objetivos del análisis
 
 
-
 Links descarga datasets:
-
 > https://www.kaggle.com/uciml/breast-cancer-wisconsin-data?select=data.csv
-
 > https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29
+
+Las características de la base de datos se han calculado a partir de imágenes digitalizadas de muestras de tumores de mama. Describen las características de los núcleos celulares presentes en la imagen.
+
+El procedimiento de toma de datos, de acuerdo a "W.N. Street, W.H. Wolberg and O.L. Mangasarian. Nuclear feature extraction for breast tumor diagnosis.", empieza por obtener a pequeña cantidad de fluido (masa) del tumor de mama utilizando una aguja fina (FNA). Para sacar las imágenes se expande ese material en un cristal y se toman imágenes utilizando una cámara JVC TK-1070U montada sobre un microscopio Olympus. Mediante el análisis de las imágenes se han obtenido diez características diferentes basadas en los límites de los núcleos celulares. Todas ellas son numéricamente modeladas de forma que a mayor valor, mayor probabilidad de ser maligno. Las características extraidas son:
+
+- Radius: el radio de un núcleo individual se mide promediando la longitud de los segmentos de la línea radial definidos por el centroide de los "snakes" y los puntos individuales de los "snakes". [Nota: los Snakes son una serie de unidades generadas durante el análisis de las imágenes]
+- Perimeter: distancia total entre los puntos de los snakes que constituyen el núcleo del perímetro.
+- Area: el área se es medido mediante el conteo del número de pixels en el interior del snake, añadiendo la mitad de los pixel del perímetro.
+- Compactness: combinación del perímetro y del área para dar una medida de compactación utilizando la fórmula $perimeter^2/area$.
+- Smoothness: la suavidad de un contorno nuclear se cuantifica midiendo la diferencia entre la longitud de la línea radial y la longitud media de las líneas que la rodean.
+- Concavity: severidad de las cavidades o prominencias de las células de los núcleos.
+- Concave Points
+- Symmetry
+- Fractal Dimension
+- Texture
+
+
+
 
 
 
@@ -66,6 +81,10 @@ Links descarga datasets:
 
 
 # Integración y selección de los datos de interés
+
+```{r}
+data <- read.csv("./Data/breast_cancer.csv")
+```
 
 
 

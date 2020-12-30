@@ -1603,7 +1603,21 @@ div.tocify {
 </div>
 <div id="descripción-del-dataset-y-objetivos-del-análisis" class="section level1">
 <h1><span class="header-section-number">2</span> Descripción del dataset y objetivos del análisis</h1>
-<p>Links:</p>
+<p>Las características de la base de datos se han calculado a partir de imágenes digitalizadas de muestras de tumores de mama. Describen las características de los núcleos celulares presentes en la imagen.</p>
+<p>El procedimiento de toma de datos, de acuerdo a “W.N. Street, W.H. Wolberg and O.L. Mangasarian. Nuclear feature extraction for breast tumor diagnosis.”, empieza por obtener a pequeña cantidad de fluido (masa) del tumor de mama utilizando una aguja fina (FNA). Para sacar las imágenes se expande ese material en un cristal y se toman imágenes utilizando una cámara JVC TK-1070U montada sobre un microscopio Olympus. Mediante el análisis de las imágenes se han obtenido diez características diferentes basadas en los límites de los núcleos celulares. Todas ellas son numéricamente modeladas de forma que a mayor valor, mayor probabilidad de ser maligno. Las características extraidas son:</p>
+<ul>
+<li>Radius: el radio de un núcleo individual se mide promediando la longitud de los segmentos de la línea radial definidos por el centroide de los “snakes” y los puntos individuales de los “snakes”. [Nota: los Snakes son una serie de unidades generadas durante el análisis de las imágenes]</li>
+<li>Perimeter: distancia total entre los puntos de los snakes que constituyen el núcleo del perímetro.</li>
+<li>Area: el área se es medido mediante el conteo del número de pixels en el interior del snake, añadiendo la mitad de los pixel del perímetro.</li>
+<li>Compactness: combinación del perímetro y del área para dar una medida de compactación utilizando la fórmula <span class="math inline">\(perimeter^2/area\)</span>.</li>
+<li>Smoothness</li>
+<li>Concavity</li>
+<li>Concave Points</li>
+<li>Symmetry</li>
+<li>Fractal Dimension</li>
+<li>Texture</li>
+</ul>
+<p>Links descarga datasets:</p>
 <blockquote>
 <p><a href="https://www.kaggle.com/uciml/breast-cancer-wisconsin-data?select=data.csv" class="uri">https://www.kaggle.com/uciml/breast-cancer-wisconsin-data?select=data.csv</a></p>
 </blockquote>
@@ -1613,6 +1627,7 @@ div.tocify {
 </div>
 <div id="integración-y-selección-de-los-datos-de-interés" class="section level1">
 <h1><span class="header-section-number">3</span> Integración y selección de los datos de interés</h1>
+<pre class="r"><code>data &lt;- read.csv(&quot;./Data/breast_cancer.csv&quot;)</code></pre>
 </div>
 <div id="limpieza-de-datos" class="section level1">
 <h1><span class="header-section-number">4</span> Limpieza de datos</h1>
