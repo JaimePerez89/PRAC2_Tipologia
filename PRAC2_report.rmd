@@ -51,8 +51,10 @@ Contribuciones durante la presente práctica:
 
 # Descripción del dataset y objetivos del análisis
 
+La base de datos elegida contiene un total de 32 atributos de 569 muestras de tejidos afectados por cancer de mama. Los atributos contienen información de las medias, desviaciones y de las medidas más desfavorables de una serie de características de las células cancerígenas.
 
 Links descarga datasets:
+
 > https://www.kaggle.com/uciml/breast-cancer-wisconsin-data?select=data.csv
 > https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29
 
@@ -60,31 +62,91 @@ Las características de la base de datos se han calculado a partir de imágenes 
 
 El procedimiento de toma de datos, de acuerdo a "W.N. Street, W.H. Wolberg and O.L. Mangasarian. Nuclear feature extraction for breast tumor diagnosis.", empieza por obtener a pequeña cantidad de fluido (masa) del tumor de mama utilizando una aguja fina (FNA). Para sacar las imágenes se expande ese material en un cristal y se toman imágenes utilizando una cámara JVC TK-1070U montada sobre un microscopio Olympus. Mediante el análisis de las imágenes se han obtenido diez características diferentes basadas en los límites de los núcleos celulares. Todas ellas son numéricamente modeladas de forma que a mayor valor, mayor probabilidad de ser maligno. Las características extraidas son:
 
-- Radius: el radio de un núcleo individual se mide promediando la longitud de los segmentos de la línea radial definidos por el centroide de los "snakes" y los puntos individuales de los "snakes". [Nota: los Snakes son una serie de unidades generadas durante el análisis de las imágenes]
+- Radius: el radio de un núcleo individual se mide promediando la longitud de los segmentos de la línea radial definidos por el centroide de los "snakes" y los puntos individuales de los "snakes". [Nota: los Snakes son una serie de unidades basadas en contornos generadas durante el análisis de las imágenes]
+
+<center>
+
+![Snakes generados durante el análisis de las imágenes](./img/Snakes.png){width='400px'}
+
+</center>
+
 - Perimeter: distancia total entre los puntos de los snakes que constituyen el núcleo del perímetro.
 - Area: el área se es medido mediante el conteo del número de pixels en el interior del snake, añadiendo la mitad de los pixel del perímetro.
 - Compactness: combinación del perímetro y del área para dar una medida de compactación utilizando la fórmula $perimeter^2/area$.
 - Smoothness: la suavidad de un contorno nuclear se cuantifica midiendo la diferencia entre la longitud de la línea radial y la longitud media de las líneas que la rodean.
+
+<center>
+
+![Lineas radiales utilizadas para el cáclulo de la suavidad](./img/smooth.png){width='200px'}
+
+</center>
+
 - Concavity: severidad de las cavidades o prominencias de las células de los núcleos.
-- Concave Points
-- Symmetry
-- Fractal Dimension
-- Texture
 
+<center>
 
+![Concavity](./img/concav.png){width='200px'}
 
+</center>
 
+- Concave Points: atributo similar al anterior pero que únicamente mide el número de prominencias en lugar de la magnitud de las mismas.
+- Symmetry: simetría calculada en base a las diferencias entre las longitudes de las líneas ficticias perpendiculares al eje principales de la célula (el mayor)
 
+<center>
 
+![Líneas utilizadas para el cálculo de la simetría](./img/symmetry.png){width='200px'}
 
+</center>
 
+- Fractal Dimension: la dimension fractal de una célula es aproximada mediante la "coastline approximation" descrita por Mandelbrot
+
+<center>
+
+![Secuencia de medidas durante la computación de la dimensión fractal](./img/fractal.png){width='400px'}
+
+</center>
+
+- Texture: la textura de la célula es medida mediante la búsqueda de la varianza de las intensidades de la escala de grises de los píxeles que componen las imágenes.
+
+- diagnosis: este atributo no ha sido obtenido del análisis de las imágenes. Identifica los tumores como malignos ("M") o benignos ("B"). Será el atríbuto clave de cara a entregar y a probar los algoritmos generados.
+
+OBJETIVOS DE LOS ANALISIS
 
 
 # Integración y selección de los datos de interés
 
+## Lectura fichero
+
+En primer lugar, procedemos a lectura del fichero mediante la función read.csv.
+
 ```{r}
-data <- read.csv("./Data/breast_cancer.csv")
+data_breast_cancer <- read.csv("./Data/breast_cancer.csv")
+head(data_breast_cancer, 3)
 ```
+
+En principio, según la información original de la base de datos, no se dispone de valores faltantes (NAs) en ninguno de sus atributos. Sin embargo, durante la lectura del archivo se observa que la función de lectura reconoce un atributo adicional "X" el cual si que contiene valores no disponibles. De cara a asegurarnos que no se han producido problemas adicionales, vamos a analizar el número total de NA para cada uno de los atributos.
+
+```{r}
+colSums(is.na(data_breast_cancer))
+```
+
+Comprobamos como la única variable que contiene valores perdidos es el atributo "X", el cual procedemos a eliminar de nuestra base de datos ya que se debe a un error en la lectura del archivo.
+
+```{r}
+data_breast_cancer <- data_breast_cancer %>% select(-X)
+```
+
+## Selección de datos de interés
+
+La gran mayoría de las variables presentes en el conjunto de datos contiene información acerca de varios aspectos de los atributos. En concreto para cada uno de ellos se dispone de la siguiente información: media, desviación y valor más desfavorable.
+
+De cara a nuestro análisis, únicamente utilizaremos el atributo media ya que realmente es el que aporta información de la magnitud de los mismos.
+
+```{r}
+data <- data_breast_cancer %>% select(id, diagnosis, radius_mean, texture_mean, perimeter_mean, area_mean, smoothness_mean, compactness_mean, concavity_mean, concave.points_mean, symmetry_mean, fractal_dimension_mean)
+head(data)
+```
+
 
 
 
