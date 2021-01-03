@@ -15,7 +15,7 @@ editor_options:
 ```{r load_libraries, include=FALSE}
 # CARGA DE LIBRERIAS
 # Librerias a cargar durante la generación del presente informe
-PACKAGES <- c("dplyr", "ggplot2", "tidyverse")
+PACKAGES <- c("dplyr", "ggplot2", "tidyverse", "reshape", "gridExtra", "psych")
 # Install packages
 inst <- match(PACKAGES, .packages(all=TRUE))
 need <- which(is.na(inst))
@@ -50,6 +50,8 @@ Contribuciones durante la presente práctica:
 
 
 # Descripción del dataset y objetivos del análisis
+
+## Descripción dataset
 
 La base de datos elegida contiene un total de 32 atributos de 569 muestras de tejidos afectados por cancer de mama. Los atributos contienen información de las medias, desviaciones y de las medidas más desfavorables de una serie de características de las células cancerígenas.
 
@@ -110,12 +112,19 @@ El procedimiento de toma de datos, de acuerdo a "W.N. Street, W.H. Wolberg and O
 
 - diagnosis: este atributo no ha sido obtenido del análisis de las imágenes. Identifica los tumores como malignos ("M") o benignos ("B"). Será el atríbuto clave de cara a entregar y a probar los algoritmos generados.
 
-OBJETIVOS DE LOS ANALISIS
+
+## Objetivos
+
+El objetivo principal del análisis será la identificación de las variables que mejor determinen si las muestras de masas cancerígenas de mama se califican como malignas o benignas. Además, se procederá a la creación de modelos que permitan predecirlas en base a sus características y contrastes de hipótesis que permitan inferir propiedades interesantes en las muestras en futuras investigaciones.
+
+Al tratarse de información muy crítica por referirse a la salud de personas, se realizará un estudio de los parámetros de los modelos que penalicen la identificación de tumores malignos como benignos, lo cual podría ser muy grave para la salud de los pacientes.
+
+
 
 
 # Integración y selección de los datos de interés
 
-## Lectura fichero
+## Lectura fichero y elementos vacios
 
 En primer lugar, procedemos a lectura del fichero mediante la función read.csv.
 
@@ -138,29 +147,104 @@ data_breast_cancer <- data_breast_cancer %>% select(-X)
 
 ## Selección de datos de interés
 
-La gran mayoría de las variables presentes en el conjunto de datos contiene información acerca de varios aspectos de los atributos. En concreto para cada uno de ellos se dispone de la siguiente información: media, desviación y valor más desfavorable.
+La gran mayoría de las variables presentes en el conjunto de datos contiene información que no será relevante durante la creación de nuestros modelos. En concreto, para cada uno de los atributos descritos en el apartado anterior y debido a que son valores numéricos resultantes de un análisis de imagen previo, se proporcionan valores de media (XX_mean), desviación (XX_se) y el valor más desfavorable (XX_worst) durante su cálculo.
 
-De cara a nuestro análisis, únicamente utilizaremos el atributo media ya que realmente es el que aporta información de la magnitud de los mismos.
+En nuestro caso, la variable que mejor nos identificará los núcleos tumorales será aquella que indica la media, por lo que procedemos a eliminar de nuestra base de datos el resto de variables:
 
 ```{r}
 data <- data_breast_cancer %>% select(id, diagnosis, radius_mean, texture_mean, perimeter_mean, area_mean, smoothness_mean, compactness_mean, concavity_mean, concave.points_mean, symmetry_mean, fractal_dimension_mean)
+```
+
+Adicionalmente, podemos formatear los nombres de las variables para eliminar el apellido mean:
+
+```{r}
+names(data) <- c("id", "diagnosis", "radius", "texture", "perimeter", "area", "smoothness", "compactness", "concavity", "concave_points", "symmetry", "fractal_dimension")
 head(data)
 ```
 
 
 
-
-
 # Limpieza de datos
 
+Como ya hemos analizado previamente, la base de datos no contiene "missing values". No obstante, antes de confirmar que se encuentra limpia, será necesario analizar aquellos datos que puedan no ser congruentes en comparación con el resto. Éstos son los denominados valores extremos o "outliers".
 
+Para identificarlos el método más común es la utilización de los diagramas de cajas que analizan el rango intercuartílico de cada una de las variables de forma individual.
+
+A continuación, vamos a representar de forma gráfica los boxplots de cada una de las variables identificando en color rojo aquellos valores susceptibles de ser considerados valores anómalos.
+
+```{r}
+plot1 <- data %>%
+  ggplot(aes(y=radius)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot2 <- data %>%
+  ggplot(aes(y=texture)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot3 <- data %>%
+  ggplot(aes(y=perimeter)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot4 <- data %>%
+  ggplot(aes(y=area)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot5 <- data %>%
+  ggplot(aes(y=smoothness)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+grid.arrange(plot1, plot2, plot3, plot4, plot5)
+```
+
+
+```{r}
+plot1 <- data %>%
+  ggplot(aes(y=compactness)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot2 <- data %>%
+  ggplot(aes(y=concavity)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot3 <- data %>%
+  ggplot(aes(y=concave_points)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot4 <- data %>%
+  ggplot(aes(y=symmetry)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+plot5 <- data %>%
+  ggplot(aes(y=fractal_dimension)) + 
+  geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
+
+grid.arrange(plot1, plot2, plot3, plot4, plot5)
+```
+
+
+Comprobamos como para todas las variables se muestran valores remarcados en rojo, los cuales el boxplot identifica como outliers por encontrarse a una distancia mayor de 1,5 veces mayores que el rango intercuartílico de los correspondientes percentiles 0.25 y 0.75. De forma numérica, los valores detectados para cada una de las variables son:
+
+
+```{r}
+for(i in 3:12){
+  calc <- boxplot.stats(data[,i])$out
+  print(sprintf("Para la variable % s los outliers identificados son:", names(data)[i]))
+  print(sprintf("% s", calc))
+}
+```
+
+En base a la información gráfica y numérica de los valores extremos anteriores, aunque se detecten como valores outliers, no vamos a eliminarlos del análisis por considerarlos consistentes con el conjunto de los datos.
 
 
 
 # Análisis de los datos
 
 
+Estudio normalidad
 
+```{r}
+data %>% select(-id, -diagnosis) %>% multi.hist(dcol = c("blue", "red"), dlty = c("dotted", "solid"), main = "")
+```
 
 
 
