@@ -239,18 +239,131 @@ En base a la información gráfica y numérica de los valores extremos anteriore
 
 # Análisis de los datos
 
+En primer lugar realizaremos un estudio de las estadísticas básicas de cada variable para, a continuación, comprobar la normalidad y la homogeneidad de la varianza de cada una de ella.
 
-Estudio normalidad
+Posteriormente, realizaremos un análisis visual y responderemos a una serie de preguntas planteadas para generar información sobre la influencia de las variables en la clasificación de los tumores.
+
+Por último, se procederá a la creación de modelos de regresión y clasificación con el objetivo de inferir la información contenido en la presente base de datos a futuras investigaciones que se realicen.
+
+
+
+## Estadísticas básicas
+
+La base de datos dispone de un total de `r nrow(data)` muestras identificadas cada una de ellas con un id único. Las estadísticas básicas del conjunto de datos son:
+
+```{r}
+summary(data[3:12])
+```
+
+En total se dispone de 357 muestras benignas y 212 muestras de tumos maligno.
+
+```{r}
+table(data$diagnosis)
+```
+
+Siendo las estadísticas particulares del grupo de tumores benignos:
+
+```{r}
+data %>% filter(diagnosis == "B") %>% select(-id, -diagnosis) %>% summary()
+```
+
+Mientras que las del grupo de tumores malignos son:
+
+```{r}
+data %>% filter(diagnosis == "M") %>% select(-id, -diagnosis) %>% summary()
+```
+
+De forma gráfica:
+
+```{r}
+data_graph <- melt(data, id=c("id","diagnosis"))
+data_graph %>% ggplot(aes(x=diagnosis, y=value, fill=diagnosis)) + 
+  geom_boxplot() + 
+  facet_wrap(~ variable, scales = "free_y")
+```
+
+
+## Comprobación de la normalidad y homogeneidad de la varianza
+
+Para el estudio de la normalidad procedemos a imprimir por pantalla los histogramas de cada una de las variables numéricas:
 
 ```{r}
 data %>% select(-id, -diagnosis) %>% multi.hist(dcol = c("blue", "red"), dlty = c("dotted", "solid"), main = "")
 ```
 
+Aunque no todas ellas siguen una distribución normal bien definidas (presentan singularidades en ciertos valores), en todos los casos nos encontramos con un número de muestras superior a 30, por lo que se puede considerar la aplicación del teorema del límite central (TLC) por el cual se estable que la hipótesis sobre la media $\overline{x}$ de una muestra se aproxima a una distribución normal aunque la población original no siga una distribución normal.
+
+A continuación, pasamos a estudiar la homogeneidad de las varianzas. El supuesto de homogeneidad de varianzas, también conocido como supuesto de homocedasticidad, considera que la varianza es constante (no varía) en los diferentes niveles de un factor, es decir, entre diferentes grupos.
+
+En nuestro caso utilizaremos como factor de grupos la clasificación del tumor (maligno vs benigno). Realizaremos un F-test, también conocido como contraste de la razón de varianzas, cuyo objetivo será contrastar la hipótesis nula de que dos poblaciones normales tengan la misma varianza.
+
+```{r}
+# Partimos la información en grupos
+a <- data %>% filter(diagnosis == "B")
+b <- data %>% filter(diagnosis == "M")
+
+# Inicializamos un data frame vacío para almacenar los datos
+results <- data.frame()
+
+# Realizamos los test para todas las variables
+for(i in 3:12){
+  results[i-2, 1] <- names(data[i])
+  results[i-2, 2] <- var.test(a[,i], b[,i])$p.value
+  
+  if(results[i-2, 2] > 0.05){
+    results[i-2, 3] = "NO"
+  } else {
+    results[i-2, 3] = "YES"
+  }
+}
+
+names(results) <- c("Variable", "p-valor", "Diff significativa")
+results
+```
+
+De acuerdo a los resultados del test, aquellas variables que no tienen una diferencia significativa entre la varianza de los dos grupos son:
+
+- texture
+- smoothness
+- Symmetry
+- fractal_dimension
+
+Por el contrario, aquellas que sí que presentan una diferencia significativa entre los dos grupos son:
+
+- radius
+- perimeter
+- area
+- compactness
+- concavity
+- concave_points
+
+
+## Pruebas estadísticas
+
+### ¿Qué variables influyen más en la peligrosidad del tumor?
+
+
+
+
+### ¿El tamaño de los núcleos influye en la clasificación del tumor?
+
+
+
+### ¿La irregularidad de los núcleos influye en la clasificación del tumor?
+
+
+
+## Modelos de regresión y clasificación
+
+
+
+
+
 
 
 # Representación de los resultados
 
-
+¿Apartado específico o vamos representando gráficamente los resultados en cada uno de los anteriores?
 
 
 
