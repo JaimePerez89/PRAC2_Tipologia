@@ -5,15 +5,15 @@ Integrantes del grupo:
 - Ana Hubel
 - Jaime Pérez
 
+El presente repositorio contiene los archivos finales del análisis realizado a la base de datos con información sobre muestras de cancer de mama: "Diagnostic Wisconsin Breast Cancer Database"
 
-Ficheros:
-
-El presente repositorio contiene los archivos finales del análisis realizados a la base de datos de cancer de mama "Diagnostic Wisconsin Breast Cancer Database"
+Ficheros del repositorio:
 
 - Data: carpeta que contiene el csv con los datos
 - img: carpeta con las imágenes incluidas en el análisis
 - PRAC2_report.html: archivo final con la presentación del análisis
 - PRAC2_report.rmd: archivo en formato rmarkdown con el código que genera el archivo html
+- Enunciado 2020_1_Practica2.pdf: enunciado propuesto
 
 Contribuciones durante el transcurso de la práctica:
 
