@@ -24,7 +24,7 @@ if (length(need) > 0) install.packages(PACKAGES[need], repos = "http://cran.us.r
 lapply(PACKAGES, require, character.only=T)
 ```
 
-
+> Enlace Github: https://github.com/JaimePerez89/PRAC2_Tipologia
 
 # Detalles de la actividad
 
@@ -40,14 +40,6 @@ Los objetivos concretos de esta práctica son:
 - Desarrollar las habilidades de aprendizaje que les permitan continuar estudiando de un modo que tendrá que ser en gran medida autodirigido o autónomo. 
 - Desarrollar la capacidad de búsqueda, gestión y uso de información y recursos en el ámbito de la ciencia de datos.
 
-Contribuciones durante la presente práctica:
-
- **Contribuciones**    |  **Firma** | 
------------------------| ----------------------|
-*Investigación previa* | Jaime Pérez & Ana Hubel 
-*Redacción de las respuestas* | Jaime Pérez & Ana Hubel
-*Desarrollo código* | Jaime Pérez & Ana Hubel
-
 
 # Descripción del dataset y objetivos del análisis
 
@@ -59,7 +51,6 @@ Links descarga datasets:
 
 > https://www.kaggle.com/uciml/breast-cancer-wisconsin-data?select=data.csv
 > https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29
-
 Las características de la base de datos se han calculado a partir de imágenes digitalizadas de muestras de tumores de mama. Describen las características de los núcleos celulares presentes en la imagen.
 
 El procedimiento de toma de datos, de acuerdo a "W.N. Street, W.H. Wolberg and O.L. Mangasarian. Nuclear feature extraction for breast tumor diagnosis.", empieza por obtener a pequeña cantidad de fluido (masa) del tumor de mama utilizando una aguja fina (FNA). Para sacar las imágenes se expande ese material en un cristal y se toman imágenes utilizando una cámara JVC TK-1070U montada sobre un microscopio Olympus. Mediante el análisis de las imágenes se han obtenido diez características diferentes basadas en los límites de los núcleos celulares. Todas ellas son numéricamente modeladas de forma que a mayor valor, mayor probabilidad de ser maligno. Las características extraidas son:
@@ -176,23 +167,18 @@ A continuación, vamos a representar de forma gráfica los boxplots de cada una 
 plot1 <- data %>%
   ggplot(aes(y=radius)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot2 <- data %>%
   ggplot(aes(y=texture)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot3 <- data %>%
   ggplot(aes(y=perimeter)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot4 <- data %>%
   ggplot(aes(y=area)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot5 <- data %>%
   ggplot(aes(y=smoothness)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 grid.arrange(plot1, plot2, plot3, plot4, plot5)
 ```
 
@@ -201,23 +187,18 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5)
 plot1 <- data %>%
   ggplot(aes(y=compactness)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot2 <- data %>%
   ggplot(aes(y=concavity)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot3 <- data %>%
   ggplot(aes(y=concave_points)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot4 <- data %>%
   ggplot(aes(y=symmetry)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 plot5 <- data %>%
   ggplot(aes(y=fractal_dimension)) + 
   geom_boxplot(outlier.colour="red", outlier.shape=8) + theme_bw()
-
 grid.arrange(plot1, plot2, plot3, plot4, plot5)
 ```
 
@@ -295,37 +276,31 @@ Aunque no todas ellas siguen una distribución normal bien definidas (presentan 
 
 A continuación, pasamos a estudiar la homogeneidad de las varianzas. El supuesto de homogeneidad de varianzas, también conocido como supuesto de homocedasticidad, considera que la varianza es constante (no varía) en los diferentes niveles de un factor, es decir, entre diferentes grupos.
 
-```{r}
+```{r include=FALSE}
 library(car)
-# Llevamos a cabo el test de Levene
+```
 
+
+```{r warning=FALSE}
+# Llevamos a cabo el test de Levene
 # Radius
 leveneTest(y = data$radius, group = data$diagnosis, center = "median")
-
 # Texture
 leveneTest(y = data$texture, group = data$diagnosis, center = "median")
-
 # Perimeter
 leveneTest(y = data$perimeter, group = data$diagnosis, center = "median")
-
 # Area
 leveneTest(y = data$area, group = data$diagnosis, center = "median")
-
 # Smoothness
 leveneTest(y = data$smoothness, group = data$diagnosis, center = "median")
-
 # Compactness
 leveneTest(y = data$compactness, group = data$diagnosis, center = "median")
-
 # Concativity
 leveneTest(y = data$concavity, group = data$diagnosis, center = "median")
-
 # Concave points
 leveneTest(y = data$concave_points, group = data$diagnosis, center = "median")
-
 # Symmetry
 leveneTest(y = data$symmetry, group = data$diagnosis, center = "median")
-
 # Fractal dimension
 leveneTest(y = data$fractal_dimension, group = data$diagnosis, center = "median")
 ```
@@ -343,10 +318,8 @@ En primer lugar, realizaremos un análisis univariante en el que se considerará
 # Partimos la información en grupos
 a <- data %>% filter(diagnosis == "B")
 b <- data %>% filter(diagnosis == "M")
-
 # Inicializamos un data.frame vacío para almacenar los datos
 results <- data.frame()
-
 # Realizamos los test para todas las variables
 for(i in 3:12){
   results[i-2, 1] <- names(data[i])
@@ -358,7 +331,6 @@ for(i in 3:12){
     results[i-2, 3] = "YES"
   }
 }
-
 names(results) <- c("Variable", "p-valor", "Diff significativa")
 results
 ```
@@ -383,7 +355,7 @@ Por el contrario, aquellas que sí que presentan una diferencia significativa en
 
 A continuación, vamos a realizar un modelo en el que se incluyan todas las variables seleccionadas para la base de datos para ver qué influencia tienen en conjunto sobre la peligrosidad del tumor. Para dar respuesta a dicha pregunta, se utilizará un modelo de regresión logística:
 
-```{r}
+```{r warning=FALSE}
 # Creamos una variable numérica a partir de la variable diagnosis
 data <- data %>% mutate(diagnosis, diag_num = ifelse(diagnosis == "B", 0, 1))
 
@@ -392,11 +364,9 @@ row.names(data) <- data$id
 data_model <- data %>% select(-id, -diagnosis)
 
 # Creación del modelo
-model <- glm(diag_num ~., data = data_model, family = binomial)
-model <- glm(diagnosis ~ texture + radius + perimeter + area + scale(smoothness) + compactness + concavity + scale(concave_points) + symmetry + fractal_dimension, data = data, family = binomial)
-#le he puesto una función de scale porque he visto que da número más "normales", pero no tengo muy claro si es está bien del todo
-tab_model(model, show.r2 = FALSE) #añado esta función para representar los datos, me parece más limpia que la del summary
-#summary(model)
+model <- glm(diag_num ~ scale(texture) + scale(radius) + scale(perimeter) + scale(area) + scale(smoothness) + scale(compactness) + scale(concavity) + scale(concave_points) + scale(symmetry) + scale(fractal_dimension), data = data_model, family = binomial)
+
+tab_model(model, show.r2 = FALSE)
 ```
 
 Como se puede observar, en el modelo en el que se incluyen todas las variables seleccionadas para ver cómo influyen sobre la variable respuesta, las variables que resultan significativas son:
@@ -462,25 +432,20 @@ Para dicha variable, las variables que tienen influencia sobre ella son la suavi
 Los árboles de decisión son modelos de predicción que pueden usarse tanto para clasificación como regresión y cuyo funcionamiento se basa en la construcción de reglas lógicas (divisiones de los datos entre rangos o condiciones) a partir de los datos de entrada. En este caso, emplearemos dicha metodología con el objetivo de ver cómo de bien se predice un resultado benigno o maligno en función de las variables que hemos seleccionado en nuestra base de datos.
 
 ```{r}
-
 #Reescalamos 
 dataset <- data
 dataset[, c(3:12)] <- scale(dataset[, c(3:12)])
-
 #Creamos el training set y el test set
 library(caTools)
 set.seed(1234)
 split <- sample.split(dataset$diagnosis, SplitRatio = 0.75)
 training_set <- subset(dataset, split == TRUE)
 test_set <- subset(dataset, split == FALSE)
-
 #Aplicamos el método de árbol de decisión
 library(rpart)
 set.seed(1234)
 clasificadorDT <- rpart(diagnosis ~ ., data = training_set)
-
 pred_valid_DT <- predict(clasificadorDT, newdata = test_set, type = 'class')
-
 matrizConfusion <- table(test_set$diagnosis, pred_valid_DT)
 matrizConfusion
 ```
@@ -491,7 +456,7 @@ Al realizar la curva ROC:
 
 ```{r}
 library(ROCR)
-pred1 <- prediction(as.numeric(pred_valid_DT), as.numeric(test_set$diagnosis))
+pred1 <- prediction(as.numeric(pred_valid_DT), test_set$diag_num)
 perf1 <- performance(pred1, "tpr", "fpr")
 plot(perf1)
 ```
@@ -502,4 +467,12 @@ Dichos números, quedan representados por la curva ROC, que demuestra el buen de
 
 Tras el análisis que acabamos de realizar extraemos varias conclusiones. En primer lugar, por sí solas, las variables que influyen sobre la malignidad del tumor son el radio, el perímetro, el área, la compacidad, la concatividad y los puntos cóncavos. Al analizar las variables de forma conjunta, las variables que parecen tener un efecto significativo sobre el tipo de tumor son la textura, el área, la suavidad y los puntos cóncavos. Por último, el poder clasificatorio del tipo de tumor dadas las variables seleccionadas es del 100%.
 
+# Contribuciones
 
+Contribuciones durante la presente práctica:
+
+ **Contribuciones**    |  **Firma** | 
+-----------------------| ----------------------|
+*Investigación previa* | Jaime Pérez & Ana Hubel 
+*Redacción de las respuestas* | Jaime Pérez & Ana Hubel
+*Desarrollo código* | Jaime Pérez & Ana Hubel
