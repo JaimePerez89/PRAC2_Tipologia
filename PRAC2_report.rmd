@@ -302,7 +302,7 @@ En nuestro caso utilizaremos como factor de grupos la clasificación del tumor (
 a <- data %>% filter(diagnosis == "B")
 b <- data %>% filter(diagnosis == "M")
 
-# Inicializamos un data frame vacío para almacenar los datos
+# Inicializamos un data.frame vacío para almacenar los datos
 results <- data.frame()
 
 # Realizamos los test para todas las variables
@@ -341,6 +341,27 @@ Por el contrario, aquellas que sí que presentan una diferencia significativa en
 ## Pruebas estadísticas
 
 ### ¿Qué variables influyen más en la peligrosidad del tumor?
+
+Para dar respuesta a la pregunta, se utilizará un modelo de regresión logística:
+
+```{r}
+# Creamos una variable numérica a partir de la variable diagnosis
+data <- data %>% mutate(diagnosis, diag_num = ifelse(diagnosis == "B", 0, 1))
+
+# Nombramos las filas para librarnos de la variable "id" y descartamos también la variable diagnosis anterior
+row.names(data) <- data$id
+data_model <- data %>% select(-id, -diagnosis)
+
+# Creación del modelo
+model <- glm(diag_num ~., data = data_model, family = binomial)
+summary(model)
+```
+
+
+
+
+
+
 
 
 
