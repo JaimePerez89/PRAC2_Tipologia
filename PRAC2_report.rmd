@@ -15,7 +15,7 @@ editor_options:
 ```{r load_libraries, include=FALSE}
 # CARGA DE LIBRERIAS
 # Librerias a cargar durante la generación del presente informe
-PACKAGES <- c("dplyr", "ggplot2", "tidyverse", "reshape", "gridExtra", "psych")
+PACKAGES <- c("dplyr", "ggplot2", "tidyverse", "reshape", "gridExtra", "psych", "sjmisc", "sjPlot", "sjstats")
 # Install packages
 inst <- match(PACKAGES, .packages(all=TRUE))
 need <- which(is.na(inst))
@@ -53,7 +53,7 @@ Contribuciones durante la presente práctica:
 
 ## Descripción dataset
 
-La base de datos elegida contiene un total de 32 atributos de 569 muestras de tejidos afectados por cancer de mama. Los atributos contienen información de las medias, desviaciones y de las medidas más desfavorables de una serie de características de las células cancerígenas.
+La base de datos elegida contiene un total de 32 atributos de 569 muestras de tejidos afectados por cáncer de mama. Los atributos contienen información de las medias, desviaciones y de las medidas más desfavorables de una serie de características de las células cancerígenas.
 
 Links descarga datasets:
 
@@ -295,7 +295,49 @@ Aunque no todas ellas siguen una distribución normal bien definidas (presentan 
 
 A continuación, pasamos a estudiar la homogeneidad de las varianzas. El supuesto de homogeneidad de varianzas, también conocido como supuesto de homocedasticidad, considera que la varianza es constante (no varía) en los diferentes niveles de un factor, es decir, entre diferentes grupos.
 
-En nuestro caso utilizaremos como factor de grupos la clasificación del tumor (maligno vs benigno). Realizaremos un F-test, también conocido como contraste de la razón de varianzas, cuyo objetivo será contrastar la hipótesis nula de que dos poblaciones normales tengan la misma varianza.
+```{r}
+library(car)
+# Llevamos a cabo el test de Levene
+
+# Radius
+leveneTest(y = data$radius, group = data$diagnosis, center = "median")
+
+# Texture
+leveneTest(y = data$texture, group = data$diagnosis, center = "median")
+
+# Perimeter
+leveneTest(y = data$perimeter, group = data$diagnosis, center = "median")
+
+# Area
+leveneTest(y = data$area, group = data$diagnosis, center = "median")
+
+# Smoothness
+leveneTest(y = data$smoothness, group = data$diagnosis, center = "median")
+
+# Compactness
+leveneTest(y = data$compactness, group = data$diagnosis, center = "median")
+
+# Concativity
+leveneTest(y = data$concavity, group = data$diagnosis, center = "median")
+
+# Concave points
+leveneTest(y = data$concave_points, group = data$diagnosis, center = "median")
+
+# Symmetry
+leveneTest(y = data$symmetry, group = data$diagnosis, center = "median")
+
+# Fractal dimension
+leveneTest(y = data$fractal_dimension, group = data$diagnosis, center = "median")
+```
+
+Tras realizar el análisis de la homocedasticidad, queda reflejado que en las variables de el radio, el perímetro, el área, la compacidad, la concatividad, los puntos cóncavos y la dimensión fractal no cumplen dicho supuesto. Es decir, tras realizar el test de Levene dichas variables muestran diferencias significativas, por lo que hay diferencias entre las varianzas de las poblaciones de tumores malignos y benignos. Para nuestros posteriores análisis con la base de datos, vamos a realizar una regresión logística y varios modelos de ANOVA, así como la aplicación de un árbol de decisión. Para dichos métodos, el único que nos daría problemas es el ANOVA. Sin embargo, pese a que no se cumpla la homocedasticidad vamos a proceder a aplicar dicho método en vez de aplicar la alternativa no paramétrica, dada su alta robustez.
+
+
+## Pruebas estadísticas
+
+### Análisis univariante: ¿Qué variables influyen más en la peligrosidad del tumor?
+
+En primer lugar, realizaremos un análisis univariante en el que se considerará cada variable por separado para ver si de forma independiente tiene efectos significativo sobre la malignidad del tumor. Para ello, realizaremos un test exacto de Fisher con el objetivo de ver si hay diferencias estadísticamente significativas entre ambas poblaciones.
 
 ```{r}
 # Partimos la información en grupos
@@ -337,12 +379,9 @@ Por el contrario, aquellas que sí que presentan una diferencia significativa en
 - concavity
 - concave_points
 
+### Análisis multivariante: ¿Qué variables influyen más en la peligrosidad del tumor?
 
-## Pruebas estadísticas
-
-### ¿Qué variables influyen más en la peligrosidad del tumor?
-
-Para dar respuesta a la pregunta, se utilizará un modelo de regresión logística:
+A continuación, vamos a realizar un modelo en el que se incluyan todas las variables seleccionadas para la base de datos para ver qué influencia tienen en conjunto sobre la peligrosidad del tumor. Para dar respuesta a dicha pregunta, se utilizará un modelo de regresión logística:
 
 ```{r}
 # Creamos una variable numérica a partir de la variable diagnosis
@@ -354,43 +393,113 @@ data_model <- data %>% select(-id, -diagnosis)
 
 # Creación del modelo
 model <- glm(diag_num ~., data = data_model, family = binomial)
-summary(model)
+model <- glm(diagnosis ~ texture + radius + perimeter + area + scale(smoothness) + compactness + concavity + scale(concave_points) + symmetry + fractal_dimension, data = data, family = binomial)
+#le he puesto una función de scale porque he visto que da número más "normales", pero no tengo muy claro si es está bien del todo
+tab_model(model, show.r2 = FALSE) #añado esta función para representar los datos, me parece más limpia que la del summary
+#summary(model)
 ```
 
+Como se puede observar, en el modelo en el que se incluyen todas las variables seleccionadas para ver cómo influyen sobre la variable respuesta, las variables que resultan significativas son:
 
+- texture
+- area
+- smoothness
+- concave_points
 
+La significatividad estadística de dichas variables nos indica que:
 
+- un mayor valor de la textura favorece de forma notoria que el diagnóstico del tumor sea maligno. 
+- un mayor alor del área favorece de forma leve que el diagnóstico del tumor sea maligno. 
+- la suavidad tiene un efecto muy importante favoreciendo la aparición del tumor maligno, presenta el valor de *odd ratio* más alto que 1.
+- los puntos cóncavos también tiene una alta relevancia aumentando la probabilidad de que el tumor sea maligno: con una fuerte asociación positiva sobre la variable respuesta, ya que el valor se encuentra muy alejado del 1. 
 
+### ¿Qué variables influyen sobre las variables que influyen sobre la peligrosidad del tumor?
 
+Como hemos mencionado anteriormente, las variables que resultan significativas sobre la peligrosidad del tumor son la textura, el área, la suavidad y los puntos cóncavos. A continuación, vamos a ver qué variables influyen sobre estas variables llevando a cabo una prueba de ANOVA tomando como variable respuesta cada una de ellas y como variables explicativas las demás.
 
+En primer lugar, analizaremos la variable de la textura:
 
+```{r}
+#Modelo texture
+modelo_texture <- aov(texture ~ radius + perimeter + area + smoothness + compactness + concavity + concave_points + symmetry + fractal_dimension + diagnosis, data = data)
+summary(modelo_texture)
+```
 
+Como se puede observar, las variables que resultan significativas sobre la la textura son el radio, el perímetro, la suavidad, la dimensión fractal y el diagnóstico.
 
-### ¿El tamaño de los núcleos influye en la clasificación del tumor?
+A continuación, analizaremos la variable área:
 
+```{r}
+#Modelo area
+modelo_area <- aov(area ~ texture + radius + perimeter + smoothness + compactness + concavity + concave_points + symmetry + fractal_dimension + diagnosis, data = data)
+summary(modelo_area)
+```
 
+En este caso, las variables que resultan significativas son: la textura, el radio, el perímetro, la compacidad, la concavidad, la dimensión fractal y el diagnóstico.
 
-### ¿La irregularidad de los núcleos influye en la clasificación del tumor?
+Procederemos con el análisis de la variable suavidad.
 
+```{r}
+#Modelo smoothness
+modelo_smoothness <- aov(smoothness ~ area + radius + perimeter + compactness + concavity + concave_points + symmetry + fractal_dimension + diagnosis, data = data)
+summary(modelo_smoothness)
+```
 
+En este caso, las variables que resultan significativas son el area, el perímetro, la compacidad, los puntos cóncavos, la simetría y la dimensión fractal.
 
-## Modelos de regresión y clasificación
+Por último, realizaremos el análisis de la variable puntos cóncavos. El análisis de dicha variable resutla de gran interés ya que, como hemos comentado anteriormente, es la variable que mayor influencia tiene sobre la malignidad del tumor.
 
+```{r}
+#Modelo puntos cóncavos
+modelo_concave_points <- lm(concave_points ~ smoothness + area + radius + perimeter + compactness + concavity + symmetry + fractal_dimension + diagnosis, data = data)
+summary(modelo_concave_points)
+```
 
+Para dicha variable, las variables que tienen influencia sobre ella son la suavidad, el perímetro, la concavidad y el diagnóstico.
 
+### Clasificación con árbol de decisión
 
+Los árboles de decisión son modelos de predicción que pueden usarse tanto para clasificación como regresión y cuyo funcionamiento se basa en la construcción de reglas lógicas (divisiones de los datos entre rangos o condiciones) a partir de los datos de entrada. En este caso, emplearemos dicha metodología con el objetivo de ver cómo de bien se predice un resultado benigno o maligno en función de las variables que hemos seleccionado en nuestra base de datos.
 
+```{r}
 
+#Reescalamos 
+dataset <- data
+dataset[, c(3:12)] <- scale(dataset[, c(3:12)])
 
-# Representación de los resultados
+#Creamos el training set y el test set
+library(caTools)
+set.seed(1234)
+split <- sample.split(dataset$diagnosis, SplitRatio = 0.75)
+training_set <- subset(dataset, split == TRUE)
+test_set <- subset(dataset, split == FALSE)
 
-¿Apartado específico o vamos representando gráficamente los resultados en cada uno de los anteriores?
+#Aplicamos el método de árbol de decisión
+library(rpart)
+set.seed(1234)
+clasificadorDT <- rpart(diagnosis ~ ., data = training_set)
 
+pred_valid_DT <- predict(clasificadorDT, newdata = test_set, type = 'class')
 
+matrizConfusion <- table(test_set$diagnosis, pred_valid_DT)
+matrizConfusion
+```
+
+Al ver la matriz de confusión, observamos que se clasifican de forma correcta el 100% de los valores que se incluyen en el test set, tras entrenar el algoritmo con el training test. Por tanto, tendremos un 0% de error de predicción.
+
+Al realizar la curva ROC:
+
+```{r}
+library(ROCR)
+pred1 <- prediction(as.numeric(pred_valid_DT), as.numeric(test_set$diagnosis))
+perf1 <- performance(pred1, "tpr", "fpr")
+plot(perf1)
+```
+
+Dichos números, quedan representados por la curva ROC, que demuestra el buen desempeño del clasificador para este conjunto de datos.
 
 # Conclusiones
 
-
-
+Tras el análisis que acabamos de realizar extraemos varias conclusiones. En primer lugar, por sí solas, las variables que influyen sobre la malignidad del tumor son el radio, el perímetro, el área, la compacidad, la concatividad y los puntos cóncavos. Al analizar las variables de forma conjunta, las variables que parecen tener un efecto significativo sobre el tipo de tumor son la textura, el área, la suavidad y los puntos cóncavos. Por último, el poder clasificatorio del tipo de tumor dadas las variables seleccionadas es del 100%.
 
 
